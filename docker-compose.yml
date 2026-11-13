@@ -1,0 +1,30 @@
+# Quick start:
+#   cp examples/peerpass.toml peerpass.toml   # or: peerpass init
+#   cp .env.example .env                      # fill in the secrets your config names
+#   docker compose up -d
+#   docker compose exec peerpass peerpass issue delegate "My coding agent"
+services:
+  peerpass:
+    build: .
+    image: peerpass:local
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PEERPASS_CONFIG: /config/peerpass.toml
+    volumes:
+      - ./peerpass.toml:/config/peerpass.toml:ro
+      - peerpass-data:/data
+    ports:
+      - "127.0.0.1:8750:8750"   # put your TLS reverse proxy or tunnel in front of this
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    pids_limit: 128
+
+volumes:
+  peerpass-data:

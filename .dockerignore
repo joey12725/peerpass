@@ -1,0 +1,8 @@
+.git
+.venv
+.cache
+**/__pycache__
+peerpass-data
+.env
+tests
+docs
