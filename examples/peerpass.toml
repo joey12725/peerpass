@@ -1,0 +1,70 @@
+# A fuller PeerPass configuration. Every secret is read from the environment variable
+# named by a *_env setting, so this file is safe to commit.
+
+[peerpass]
+host_name = "Atlas"                       # the agent visitors are talking to
+owner_name = "Alex"                       # the person who issues passes
+public_url = "https://atlas.example.com"  # where visitors reach the gateway
+listen = "0.0.0.0:8750"
+state_dir = "./peerpass-data"
+timezone = "America/New_York"             # for expiry times in chat replies
+token_prefix = "pp_"                      # makes leaked passes easy to spot and scan for
+
+# --- Host: how the gateway reaches your agent ---------------------------------------------
+[host]
+adapter = "openai"                        # any OpenAI-compatible chat completions endpoint
+base_url = "http://127.0.0.1:11434/v1"    # Ollama, vLLM, LM Studio, OpenRouter, your agent...
+model = "llama3.1"
+api_key_env = "HOST_API_KEY"
+session_header = "X-Session-Id"           # optional: lets your agent keep per-pass memory
+
+# Optional: run the release reviewer on a different model than the reasoner.
+# [review_host]
+# adapter = "openai"
+# base_url = "https://api.example.com/v1"
+# model = "small-careful-model"
+# api_key_env = "REVIEW_API_KEY"
+
+# --- Profiles -----------------------------------------------------------------------------
+# delegate, colleague and friend are built in; this tightens one and adds another.
+[profiles.friend]
+ttl_default = "14d"
+rate_per_minute = 3
+
+[profiles.contractor]
+mode = "reviewed"
+scopes = ["agent.consult", "jobs.read", "proposal.create", "proposal.read"]
+ttl_default = "7d"
+ttl_max = "30d"
+max_calls_default = 50
+tools = ["docs.search", "tickets.read"]   # forwarded to the host as the allowlist
+audience = "A contractor on one project. Share only what that project needs."
+description = "Reviewed access for an outside contractor's agent."
+
+[limits]
+global_concurrency = 4
+reviewed_concurrency = 1
+job_retention = "24h"
+audit_retention = "30d"
+
+# --- Transports: enable any combination ---------------------------------------------------
+[transports.discord]
+token_env = "DISCORD_BOT_TOKEN"
+owner_ids = ["100000000000000001"]
+guild_ids = ["200000000000000002"]        # optional; registers /pass instantly in these servers
+
+[transports.slack]
+bot_token_env = "SLACK_BOT_TOKEN"
+signing_secret_env = "SLACK_SIGNING_SECRET"
+owner_ids = ["U00000OWNER"]
+
+[transports.telegram]
+token_env = "TELEGRAM_BOT_TOKEN"
+owner_ids = ["123456789"]
+
+[transports.matrix]
+enabled = false
+homeserver = "https://matrix.example.org"
+user_id = "@atlas-gate:example.org"
+access_token_env = "MATRIX_ACCESS_TOKEN"
+owner_ids = ["@alex:example.org"]
