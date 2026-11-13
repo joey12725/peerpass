@@ -1,0 +1,62 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "peerpass"
+version = "0.1.0"
+description = "Scoped, expiring, revocable access passes that let other people's agents talk to yours."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Joey Hersh" }]
+requires-python = ">=3.11"
+dependencies = []
+keywords = ["agents", "a2a", "mcp", "access-control", "llm", "gateway", "discord", "slack", "telegram", "matrix"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Security",
+  "Topic :: Communications :: Chat",
+]
+
+[project.optional-dependencies]
+discord = ["discord.py>=2.3"]
+
+[project.scripts]
+peerpass = "peerpass.cli:main"
+peerpass-client = "peerpass.client:run"
+
+[project.urls]
+Homepage = "https://github.com/joey12725/peerpass"
+Documentation = "https://github.com/joey12725/peerpass/tree/main/docs"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/peerpass"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 130
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "BLE"]
+ignore = ["E731", "B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["peerpass"]
+
+[tool.ruff.format]
+quote-style = "single"
